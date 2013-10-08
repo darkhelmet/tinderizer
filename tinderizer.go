@@ -3,6 +3,7 @@ package tinderizer
 import (
     "github.com/darkhelmet/postmark"
     "github.com/darkhelmet/readability"
+    "github.com/darkhelmet/tinderizer/cache"
     "github.com/darkhelmet/tinderizer/cleaner"
     "github.com/darkhelmet/tinderizer/emailer"
     "github.com/darkhelmet/tinderizer/extractor"
@@ -41,6 +42,14 @@ func (a *App) Shutdown() {
 
 func (a *App) Queue(job J.Job) {
     a.input <- job
+}
+
+func (a *App) Status(id string) (string, error) {
+    return cache.Get(id)
+}
+
+func (a *App) Reactivate(b postmark.Bounce) error {
+    return a.postmark.Reactivate(b)
 }
 
 func New(readabilityToken, postmarkToken, fromEmailAddress string, kindlegenBinary string, logger *log.Logger) *App {

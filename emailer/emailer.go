@@ -25,7 +25,6 @@ const (
 
     JobDuration = "job.duration"
 
-    PostmarkBounce       = "postmark.bounce"
     PostmarkSuccess      = "postmark.success"
     PostmarkTooBig       = "postmark.toobig"
     PostmarkError        = "postmark.error"
