@@ -10,15 +10,10 @@ type Cache interface {
     Fetch(key string, ttl int, f func() string) string
 }
 
-var impl Cache
+var impl Cache = newDictCache()
 
-func init() {
-    server := env.StringDefault("MEMCACHE_SERVERS", "")
-    if server == "" {
-        impl = newDictCache()
-    } else {
-        impl = newMemcacheCache(server, env.StringDefault("MEMCACHE_USERNAME", ""), env.StringDefault("MEMCACHE_PASSWORD", ""))
-    }
+func SetupMemcache(servers, username, password string) {
+    impl = newMemcacheCache(servers, username, password)
 }
 
 func Get(key string) (string, error) {
