@@ -11,7 +11,7 @@ type dictCache struct {
     mutex sync.Mutex
 }
 
-func newDictCache() *dictCache {
+func newDictCache() Cache {
     c := new(dictCache)
     c.dict = make(map[string]string)
     return c

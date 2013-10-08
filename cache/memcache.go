@@ -19,11 +19,11 @@ type mcCache struct {
 
 var logger = log.New(os.Stdout, "[memcache] ", env.IntDefault("LOG_FLAGS", log.LstdFlags|log.Lmicroseconds))
 
-func newMemcacheCache(server, username, password string) (c *mcCache) {
-    c = &mcCache{nil, fmt.Sprintf("%s:11211", server), username, password}
+func newMemcacheCache(server, username, password string) Cache {
+    c := &mcCache{nil, fmt.Sprintf("%s:11211", server), username, password}
     c.connect()
     c.auth()
-    return
+    return c
 }
 
 func (c *mcCache) connect() {

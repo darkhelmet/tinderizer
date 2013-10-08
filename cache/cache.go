@@ -1,9 +1,5 @@
 package cache
 
-import (
-    "github.com/darkhelmet/env"
-)
-
 type Cache interface {
     Get(key string) (string, error)
     Set(key string, data string, ttl int)
