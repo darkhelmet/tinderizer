@@ -5,7 +5,6 @@ import (
     "fmt"
     "github.com/darkhelmet/env"
     "github.com/darkhelmet/readability"
-    "github.com/darkhelmet/stat"
     "github.com/darkhelmet/tinderizer/boots"
     "github.com/darkhelmet/tinderizer/hashie"
     J "github.com/darkhelmet/tinderizer/job"
@@ -20,11 +19,6 @@ const (
     FriendlyMessage = "Sorry, extraction failed."
     RetryTimes      = 3
     RetryPause      = 3 * time.Second
-
-    ExtractorAuthor     = "extractor.author"
-    ExtractorImage      = "extractor.image"
-    ExtractorError      = "extractor.error"
-    ExtractorImageError = "extractor.imageerror"
 )
 
 type JSON map[string]interface{}
@@ -54,7 +48,6 @@ func New(rdb *readability.Endpoint, input <-chan J.Job, output chan<- J.Job, err
 }
 
 func (e *Extractor) error(job J.Job, format string, args ...interface{}) {
-    stat.Count(ExtractorError, 1)
     logger.Printf(format, args...)
     job.Friendly = FriendlyMessage
     e.Error <- job
@@ -118,7 +111,6 @@ func (e *Extractor) Process(job J.Job) {
     job.Domain = resp.Domain
     if resp.Author != nil {
         job.Author = *resp.Author
-        stat.Count(ExtractorAuthor, 1)
     }
 
     job.Progress("Extraction complete...")
@@ -138,9 +130,6 @@ func rewriteAndDownloadImages(root string, content string) (*html.Node, error) {
                     defer wg.Done()
                     if err := imageDownloader.downloadToFile(uri, altered); err != nil {
                         logger.Printf("downloading image failed: %s", err)
-                        stat.Count(ExtractorImageError, 1)
-                    } else {
-                        stat.Count(ExtractorImage, 1)
                     }
                 }()
                 node.Attr[index].Val = altered

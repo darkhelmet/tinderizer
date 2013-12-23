@@ -4,7 +4,6 @@ import (
     "fmt"
     "github.com/darkhelmet/env"
     "github.com/darkhelmet/postmark"
-    "github.com/darkhelmet/stat"
     "github.com/darkhelmet/tinderizer/blacklist"
     "github.com/darkhelmet/tinderizer/cache"
     J "github.com/darkhelmet/tinderizer/job"
@@ -22,14 +21,6 @@ const (
     MaxAttachmentSize = 10485760
     Subject           = "convert"
     FriendlyMessage   = "Sorry, email sending failed."
-
-    JobDuration = "job.duration"
-
-    PostmarkSuccess      = "postmark.success"
-    PostmarkTooBig       = "postmark.toobig"
-    PostmarkError        = "postmark.error"
-    PostmarkInvalidEmail = "postmark.invalidemail"
-    PostmarkDeactivated  = "postmark.deactivated"
 )
 
 var (
@@ -79,7 +70,6 @@ func (e *Emailer) Process(job J.Job) {
         return
     } else {
         if st.Size() > MaxAttachmentSize {
-            stat.Count(PostmarkTooBig, 1)
             blacklist.Blacklist(job.Url)
             e.error(job, "Sorry, this article is too big to send!", "Attachment was too big (%d bytes)", st.Size())
             return
@@ -107,18 +97,14 @@ func (e *Emailer) Process(job J.Job) {
     switch resp.ErrorCode {
     case 0:
         // All is well
-        stat.Count(PostmarkSuccess, 1)
     case 422:
         e.error(job, FriendlyMessage, "failed sending email: %s: %s", err, resp.Message)
-        stat.Count(PostmarkError, 1)
         return
     case 300:
         e.error(job, "Your email appears invalid. Please try carefully remaking the bookmarklet.", "emailer: Email inactive or invalid")
-        stat.Count(PostmarkInvalidEmail, 1)
         return
     case 406:
         e.error(job, "Your email appears to have bounced. Amazon likes to bounce emails sometimes, and my provider 'deactivates' the email. For now, try changing your Personal Documents Email. I'm trying to find a proper solution for this :(", "emailer: Email inactive or invalid")
-        stat.Count(PostmarkDeactivated, 1)
         return
     default:
         e.error(job, FriendlyMessage, "Something bizarre happened with Postmark: %s", resp.Message)
@@ -134,7 +120,5 @@ func (e *Emailer) Process(job J.Job) {
 func recordDurationStat(job J.Job) {
     finishedAt := time.Now()
     duration := finishedAt.Sub(job.StartedAt)
-    milliseconds := duration.Seconds() * 1000
-    logger.Printf("job %s took %s", job.Key, duration)
-    stat.Gauge(JobDuration, milliseconds)
+    logger.Printf("job=%s duration=%s", job.Key, duration)
 }

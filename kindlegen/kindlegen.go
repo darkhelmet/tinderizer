@@ -3,7 +3,6 @@ package kindlegen
 import (
     "fmt"
     "github.com/darkhelmet/env"
-    "github.com/darkhelmet/stat"
     J "github.com/darkhelmet/tinderizer/job"
     T "html/template"
     "log"
@@ -14,7 +13,6 @@ import (
 
 const (
     FriendlyMessage = "Sorry, conversion failed."
-    KindlegenError  = "kindlegen.error"
     Tmpl            = `
 <html>
     <head>
@@ -76,7 +74,6 @@ func New(binary string, input <-chan J.Job, output chan<- J.Job, error chan<- J.
 }
 
 func (k *Kindlegen) error(job J.Job, format string, args ...interface{}) {
-    stat.Count(KindlegenError, 1)
     logger.Printf(format, args...)
     job.Friendly = FriendlyMessage
     k.Error <- job
