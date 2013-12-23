@@ -71,10 +71,13 @@ func (e *Extractor) Run(wg *sync.WaitGroup) {
 }
 
 func (e *Extractor) extract(url, content string) (*readability.Response, error) {
-    if content == "" {
-        return rdb.Extract(url)
-    }
-    return rdb.ExtractWithContent(url, content)
+    return rdb.Extract(url)
+
+    // See if Readability fixes their API, just leave this here for now...
+    // if content == "" {
+    //     return rdb.Extract(url)
+    // }
+    // return rdb.ExtractWithContent(url, content)
 }
 
 func (e *Extractor) extractRetry(url, content string) (resp *readability.Response, err error) {
