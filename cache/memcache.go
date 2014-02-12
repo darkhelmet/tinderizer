@@ -7,6 +7,7 @@ import (
     "log"
     "os"
     "syscall"
+    "time"
 )
 
 type mcCache struct {
@@ -43,6 +44,7 @@ func (c *mcCache) handleError(action, key string, err error) bool {
     switch err {
     case io.EOF, syscall.ECONNRESET:
         // Lost connection? Try reconnecting
+        time.Sleep(1 * time.Second)
         c.connect()
         // And of course we have to auth again
         fallthrough

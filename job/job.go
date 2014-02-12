@@ -12,7 +12,6 @@ import (
     "html/template"
     "net/url"
     "os"
-    "strings"
     "time"
 )
 
@@ -85,8 +84,7 @@ func New(email, uri, content string) (*Job, error) {
 }
 
 func (j *Job) filename(extension string) string {
-    safeName := strings.Replace(j.Title, string(os.PathSeparator), "", -1)
-    return fmt.Sprintf("%s.%s", safeName, extension)
+    return fmt.Sprintf("Tinderizer.%s", extension)
 }
 
 func (j *Job) GoString() string {
