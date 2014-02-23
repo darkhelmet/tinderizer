@@ -125,6 +125,7 @@ func rewriteAndDownloadImages(root string, content string) (*html.Node, error) {
                 wg.Add(1)
                 go func() {
                     defer wg.Done()
+                    logger.Printf("downloading image: %s", uri)
                     if err := imageDownloader.downloadToFile(uri, altered); err != nil {
                         logger.Printf("downloading image failed: %s", err)
                     }
