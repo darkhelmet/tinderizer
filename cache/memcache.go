@@ -27,26 +27,26 @@ func newMemcacheCache(server, username, password string) Cache {
 }
 
 func (c *mcCache) connect() {
-    logger.Printf("memcached connecting")
+    logger.Printf("connecting")
     if cn, err := mc.Dial("tcp", c.server); err != nil {
-        logger.Panicf("Error connecting to memcached: %s", err)
+        logger.Panicf("connecting failed: %s", err)
     } else {
         c.conn = cn
     }
 }
 
 func (c *mcCache) auth() {
-    logger.Printf("memcached authenticating")
+    logger.Printf("authenticating")
     if err := c.conn.Auth(c.username, c.password); err != nil {
-        logger.Panicf("Error authenticating with memcached: %s", err)
+        logger.Panicf("authentication failed: %s", err)
     }
 }
 
 func (c *mcCache) handleError(action, key string, err error) bool {
-    logger.Printf("memcached error: %s", err)
+    logger.Printf("error: %s", err)
     switch err {
     case io.EOF, syscall.ECONNRESET:
-        logger.Printf("memcached trying to reconnect")
+        logger.Printf("trying to reconnect")
         // Lost connection? Try reconnecting
         time.Sleep(1 * time.Second)
         c.connect()
@@ -58,7 +58,7 @@ func (c *mcCache) handleError(action, key string, err error) bool {
     case mc.ErrNotFound:
         // Cool story bro
     default:
-        logger.Panicf("memcached error in %s for key %s: %s", action, key, err)
+        logger.Panicf("error in %s for key %s: %s", action, key, err)
     }
     return false
 }
