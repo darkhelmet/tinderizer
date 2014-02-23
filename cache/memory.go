@@ -55,16 +55,3 @@ func (c *dictCache) Set(key, data string, ttl int) {
     }
     c.dict[key] = data
 }
-
-func (c *dictCache) Fetch(key string, ttl int, f func() string) string {
-    c.lock()
-    defer c.unlock()
-    value, ok := c.dict[key]
-    if !ok {
-        // We are setting the value, so
-        go c.reap(key, ttl)
-        value = f()
-        c.dict[key] = value
-    }
-    return value
-}

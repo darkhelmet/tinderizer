@@ -5,17 +5,20 @@ import (
     "github.com/darkhelmet/tinderizer/hashie"
 )
 
-const TTL = 24 * 60 * 60 // 1 day
+const (
+    TTL   = 24 * 60 * 60 // 1 day
+    Value = "blacklisted"
+)
 
 func key(thing string) string {
     return hashie.Sha1([]byte(thing), []byte(":blacklisted"))
 }
 
 func IsBlacklisted(thing string) bool {
-    _, err := cache.Get(key(thing))
-    return err == nil
+    value, _ := cache.Get(key(thing))
+    return value == Value
 }
 
 func Blacklist(thing string) {
-    cache.Set(key(thing), "blacklisted", TTL)
+    cache.Set(key(thing), Value, TTL)
 }

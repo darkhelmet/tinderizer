@@ -2,10 +2,7 @@ package cache
 
 import (
     "github.com/bmizerany/mc"
-    "github.com/darkhelmet/env"
     "io"
-    "log"
-    "os"
     "syscall"
     "time"
 )
@@ -16,8 +13,6 @@ type mcCache struct {
     username string
     password string
 }
-
-var logger = log.New(os.Stdout, "[memcache] ", env.IntDefault("LOG_FLAGS", log.LstdFlags|log.Lmicroseconds))
 
 func newMemcacheCache(server, username, password string) Cache {
     c := &mcCache{nil, server, username, password}
@@ -36,14 +31,17 @@ func (c *mcCache) connect() {
 }
 
 func (c *mcCache) auth() {
+    if c.username == "" {
+        return
+    }
     logger.Printf("authenticating")
     if err := c.conn.Auth(c.username, c.password); err != nil {
         logger.Panicf("authentication failed: %s", err)
     }
 }
 
-func (c *mcCache) handleError(action, key string, err error) bool {
-    logger.Printf("error: %s", err)
+func (c *mcCache) handleError(action, key string, err error) (retry bool) {
+    logger.Printf("error in %s for key %s: %s", action, key, err)
     switch err {
     case io.EOF, syscall.ECONNRESET:
         logger.Printf("trying to reconnect")
@@ -88,18 +86,4 @@ func (c *mcCache) rset(key, data string, ttl, limit int) {
             c.rset(key, data, ttl, limit-1)
         }
     }
-}
-
-func (c *mcCache) Fetch(key string, ttl int, f func() string) string {
-    value, cas, _, err := c.conn.Get(key)
-    if err != nil {
-        c.handleError("fetch/get", key, err)
-        value = f()
-        /*  If this fails, don't worry too much
-            In the situations it gets used, it doesn't matter */
-        if err = c.conn.Set(key, value, cas, 0, ttl); err != nil {
-            c.handleError("fetch/set", key, err)
-        }
-    }
-    return value
 }

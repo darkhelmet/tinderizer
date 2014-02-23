@@ -1,15 +1,27 @@
 package cache
 
+import (
+    "github.com/darkhelmet/env"
+    "log"
+    "os"
+)
+
 type Cache interface {
     Get(key string) (string, error)
     Set(key string, data string, ttl int)
-    Fetch(key string, ttl int, f func() string) string
 }
 
 var impl Cache = newDictCache()
+var logger *log.Logger
 
 func SetupMemcache(servers, username, password string) {
+    logger = log.New(os.Stdout, "[memcache] ", env.IntDefault("LOG_FLAGS", log.LstdFlags|log.Lmicroseconds))
     impl = newMemcacheCache(servers, username, password)
+}
+
+func SetupRedis(url string) {
+    logger = log.New(os.Stdout, "[redis] ", env.IntDefault("LOG_FLAGS", log.LstdFlags|log.Lmicroseconds))
+    impl = newRedisCache(url)
 }
 
 func Get(key string) (string, error) {
@@ -18,8 +30,4 @@ func Get(key string) (string, error) {
 
 func Set(key, data string, ttl int) {
     impl.Set(key, data, ttl)
-}
-
-func Fetch(key string, ttl int, f func() string) string {
-    return impl.Fetch(key, ttl, f)
 }
