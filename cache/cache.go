@@ -22,9 +22,7 @@ func SetupMemcache(servers, username, password string) {
 
 func SetupRedis(url, options string) {
     url = regexp.MustCompile(`^redis:`).ReplaceAllString(url, "tcp:")
-    if options != "" {
-        url += "?" + options
-    }
+    url += "/0?" + options
     logger = log.New(os.Stdout, "[redis] ", env.IntDefault("LOG_FLAGS", log.LstdFlags|log.Lmicroseconds))
     impl = newRedisCache(url)
 }
