@@ -27,6 +27,7 @@ func newMemcacheCache(server, username, password string) Cache {
 }
 
 func (c *mcCache) connect() {
+    logger.Printf("memcached connecting")
     if cn, err := mc.Dial("tcp", c.server); err != nil {
         logger.Panicf("Error connecting to memcached: %s", err)
     } else {
@@ -35,14 +36,17 @@ func (c *mcCache) connect() {
 }
 
 func (c *mcCache) auth() {
+    logger.Printf("memcached authenticating")
     if err := c.conn.Auth(c.username, c.password); err != nil {
         logger.Panicf("Error authenticating with memcached: %s", err)
     }
 }
 
 func (c *mcCache) handleError(action, key string, err error) bool {
+    logger.Printf("memcached error: %s", err)
     switch err {
     case io.EOF, syscall.ECONNRESET:
+        logger.Printf("memcached trying to reconnect")
         // Lost connection? Try reconnecting
         time.Sleep(1 * time.Second)
         c.connect()
