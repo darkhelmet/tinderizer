@@ -4,6 +4,7 @@ import (
     "github.com/darkhelmet/env"
     "log"
     "os"
+    "regexp"
 )
 
 type Cache interface {
@@ -19,7 +20,11 @@ func SetupMemcache(servers, username, password string) {
     impl = newMemcacheCache(servers, username, password)
 }
 
-func SetupRedis(url string) {
+func SetupRedis(url, options string) {
+    url = regexp.MustCompile(`^redis:`).ReplaceAllString(url, "tcp:")
+    if options != "" {
+        url += "?" + options
+    }
     logger = log.New(os.Stdout, "[redis] ", env.IntDefault("LOG_FLAGS", log.LstdFlags|log.Lmicroseconds))
     impl = newRedisCache(url)
 }
