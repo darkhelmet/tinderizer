@@ -88,6 +88,8 @@ func (e *Extractor) extractRetry(url, content string) (resp *readability.Respons
 }
 
 func (e *Extractor) Process(job J.Job) {
+    job.Progress("Extracting...")
+
     defer e.wg.Done()
     resp, err := e.extractRetry(job.Url, job.Content)
     if err != nil {

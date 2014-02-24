@@ -46,7 +46,7 @@ func (c *dictCache) Get(key string) (string, error) {
     return "", errors.New("not found")
 }
 
-func (c *dictCache) Set(key, data string, ttl int) {
+func (c *dictCache) Set(key, data string, ttl int) error {
     c.lock()
     defer c.unlock()
     if _, ok := c.dict[key]; !ok {
@@ -54,4 +54,5 @@ func (c *dictCache) Set(key, data string, ttl int) {
         go c.reap(key, ttl)
     }
     c.dict[key] = data
+    return nil
 }

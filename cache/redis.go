@@ -2,20 +2,26 @@ package cache
 
 import (
     "github.com/xuyu/goredis"
+    "net"
+    "sync"
+    "syscall"
 )
 
 type redisCache struct {
     redis *goredis.Redis
+    mutex sync.Mutex
     url   string
 }
 
 func newRedisCache(url string) Cache {
-    c := &redisCache{nil, url}
+    c := &redisCache{url: url}
     c.connect()
     return c
 }
 
 func (c *redisCache) connect() {
+    c.mutex.Lock()
+    defer c.mutex.Unlock()
     logger.Printf("connecting")
     redis, err := goredis.DialURL(c.url)
     if err != nil {
@@ -24,19 +30,36 @@ func (c *redisCache) connect() {
     c.redis = redis
 }
 
-func (c *redisCache) handleError(action, key string, err error) {
+func (c *redisCache) handleError(err error, retry func()) {
     if err != nil {
-        logger.Panicf("error in %s for key %s: %s", action, key, err)
+        switch e := err.(type) {
+        case *net.OpError:
+            switch e.Err {
+            case syscall.EPIPE:
+                logger.Printf("broken pipe, reconnecting and retrying")
+                c.connect()
+                retry()
+            default:
+                logger.Printf("unhandled net.OpError: %s, %#v", err, err)
+            }
+        default:
+            logger.Printf("unhandled error: %s, %#v", err)
+        }
     }
 }
 
 func (c *redisCache) Get(key string) (string, error) {
     data, err := c.redis.Get(key)
-    c.handleError("get", key, err)
-    return string(data), nil
+    c.handleError(err, func() {
+        data, err = c.redis.Get(key)
+    })
+    return string(data), err
 }
 
-func (c *redisCache) Set(key, data string, ttl int) {
+func (c *redisCache) Set(key, data string, ttl int) error {
     err := c.redis.Set(key, data, ttl, 0, false, false)
-    c.handleError("set", key, err)
+    c.handleError(err, func() {
+        err = c.redis.Set(key, data, ttl, 0, false, false)
+    })
+    return err
 }

@@ -9,16 +9,11 @@ import (
 
 type Cache interface {
     Get(key string) (string, error)
-    Set(key string, data string, ttl int)
+    Set(key string, data string, ttl int) error
 }
 
 var impl Cache = newDictCache()
 var logger *log.Logger
-
-func SetupMemcache(servers, username, password string) {
-    logger = log.New(os.Stdout, "[memcache] ", env.IntDefault("LOG_FLAGS", log.LstdFlags|log.Lmicroseconds))
-    impl = newMemcacheCache(servers, username, password)
-}
 
 func SetupRedis(url, options string) {
     url = regexp.MustCompile(`^redis:`).ReplaceAllString(url, "tcp:")
@@ -31,6 +26,6 @@ func Get(key string) (string, error) {
     return impl.Get(key)
 }
 
-func Set(key, data string, ttl int) {
-    impl.Set(key, data, ttl)
+func Set(key, data string, ttl int) error {
+    return impl.Set(key, data, ttl)
 }

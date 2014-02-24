@@ -64,6 +64,8 @@ func (e *Emailer) Run(wg *sync.WaitGroup) {
 }
 
 func (e *Emailer) Process(job J.Job) {
+    job.Progress("Sending to your Kindle...")
+
     defer e.wg.Done()
     if st, err := os.Stat(job.MobiFilePath()); err != nil {
         e.error(job, FriendlyMessage, "Something weird happened. Mobi is missing: %s", err)

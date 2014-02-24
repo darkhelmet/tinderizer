@@ -90,6 +90,8 @@ func (k *Kindlegen) Run(wg *sync.WaitGroup) {
 }
 
 func (k *Kindlegen) Process(job J.Job) {
+    job.Progress("Optimizing for Kindle...")
+
     defer k.wg.Done()
     if err := writeHTML(job); err != nil {
         k.error(job, err.Error())
@@ -104,7 +106,7 @@ func (k *Kindlegen) Process(job J.Job) {
         return
     }
 
-    job.Progress("Conversion complete...")
+    job.Progress("Optimization complete...")
     k.Output <- job
 }
 
