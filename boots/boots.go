@@ -1,8 +1,9 @@
 package boots
 
 import (
-	"code.google.com/p/go.net/html"
 	"io"
+
+	"golang.org/x/net/html"
 )
 
 func Walk(r io.Reader, tag string, f func(*html.Node)) (*html.Node, error) {

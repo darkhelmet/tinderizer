@@ -2,17 +2,18 @@ package job
 
 import (
 	"bytes"
-	"code.google.com/p/go.net/html"
 	"errors"
 	"fmt"
-	"github.com/darkhelmet/tinderizer/blacklist"
-	"github.com/darkhelmet/tinderizer/hashie"
-	"github.com/darkhelmet/tinderizer/user"
-	"github.com/nu7hatch/gouuid"
 	"html/template"
 	"net/url"
 	"os"
 	"time"
+
+	"github.com/darkhelmet/tinderizer/blacklist"
+	"github.com/darkhelmet/tinderizer/hashie"
+	"github.com/darkhelmet/tinderizer/user"
+	"github.com/nu7hatch/gouuid"
+	"golang.org/x/net/html"
 )
 
 const DefaultAuthor = "Tinderizer"

@@ -8,12 +8,12 @@ import (
 	"sync"
 	"time"
 
-	"code.google.com/p/go.net/html"
 	"github.com/darkhelmet/env"
 	"github.com/darkhelmet/mercury"
 	"github.com/darkhelmet/tinderizer/boots"
 	"github.com/darkhelmet/tinderizer/hashie"
 	J "github.com/darkhelmet/tinderizer/job"
+	"golang.org/x/net/html"
 )
 
 const (
