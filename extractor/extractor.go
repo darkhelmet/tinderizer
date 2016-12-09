@@ -64,7 +64,7 @@ func (e *Extractor) Run(wg *sync.WaitGroup) {
 	close(e.Output)
 }
 
-func (e *Extractor) extract(url, content string) (*mercury.Response, error) {
+func (e *Extractor) extract(url string) (*mercury.Response, error) {
 	return merc.Extract(url)
 }
 
@@ -72,7 +72,7 @@ func (e *Extractor) Process(job J.Job) {
 	job.Progress("Extracting...")
 
 	defer e.wg.Done()
-	resp, err := e.extract(job.Url, job.Content)
+	resp, err := e.extract(job.Url)
 	if err != nil {
 		e.error(job, "%s", err)
 		return

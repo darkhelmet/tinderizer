@@ -28,13 +28,13 @@ var (
 )
 
 type Job struct {
-	Url, Email, Title, Author, Domain, Friendly, Content string
-	Key                                                  *uuid.UUID
-	Doc                                                  *html.Node
-	StartedAt                                            time.Time
+	Url, Email, Title, Author, Domain, Friendly string
+	Key                                         *uuid.UUID
+	Doc                                         *html.Node
+	StartedAt                                   time.Time
 }
 
-func New(email, uri, content string) (*Job, error) {
+func New(email, uri string) (*Job, error) {
 	u, err := url.Parse(uri)
 	if err != nil {
 		blacklist.Blacklist(uri)
@@ -66,7 +66,6 @@ func New(email, uri, content string) (*Job, error) {
 	}
 
 	j := &Job{
-		Content:   content,
 		Title:     uri,
 		Email:     email,
 		Url:       uri,
